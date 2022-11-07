@@ -31,13 +31,6 @@
 
 ### How to use
 
-### **npm-gui** supported framework
-
-- Reactjs
-- Gatsby
-- Nextjs
-- Vuejs
-
 ## Developement
 
 ### Tech Stack
