@@ -39,4 +39,4 @@
 
 ## Authors and Contributors
 
-@q-nick
+[@chiragpadayal](https://github.com/chiragpadyal)
