@@ -1,42 +1,51 @@
 {
-  "name": "my-app",
-  "productName": "my-app",
+  "type": "module",
+  "name": "npm-gui",
   "version": "1.0.0",
-  "description": "My Electron application description",
-  "main": ".webpack/main",
+  "description": "A npm command-line tool.",
+  "main": "src/index.js",
+  "directories": {
+    "doc": "doc"
+  },
   "scripts": {
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\""
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js",
+    "prepublish": ""
   },
-  "keywords": [],
-  "author": {
-    "name": "Chirag Padyal",
-    "email": "FreakStar03"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chiragpadyal/npm-gui.git"
   },
+  "keywords": [
+    "packages",
+    "npm",
+    "node",
+    "decrypted"
+  ],
+  "author": "Chirag Padyal <chirag.padyal@gmail.com>",
   "license": "MIT",
-  "devDependencies": {
-    "@babel/core": "^7.20.2",
-    "@babel/preset-react": "^7.18.6",
-    "@electron-forge/cli": "^6.0.0",
-    "@electron-forge/maker-deb": "^6.0.0",
-    "@electron-forge/maker-rpm": "^6.0.0",
-    "@electron-forge/maker-squirrel": "^6.0.0",
-    "@electron-forge/maker-zip": "^6.0.0",
-    "@electron-forge/plugin-webpack": "^6.0.0",
-    "@vercel/webpack-asset-relocator-loader": "1.7.3",
-    "babel-loader": "^9.1.0",
-    "css-loader": "^6.0.0",
-    "electron": "21.2.2",
-    "node-loader": "^2.0.0",
-    "style-loader": "^3.0.0"
+  "bugs": {
+    "url": "https://github.com/chiragpadyal/npm-gui/issues"
   },
+  "homepage": "https://github.com/chiragpadyal/npm-gui#readme",
   "dependencies": {
-    "antd": "^4.24.1",
-    "electron-squirrel-startup": "^1.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@octokit/rest": "^19.0.5",
+    "axios": "^1.2.1",
+    "commander": "^9.4.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "figlet": "^1.5.2",
+    "gradient-string": "^2.0.2",
+    "inquirer": "^8.2.5",
+    "listr": "^0.14.3",
+    "np": "^7.6.2",
+    "opener": "^1.5.2",
+    "semver": "^7.3.8",
+    "table": "^6.8.1"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.3.0",
+    "@commitlint/config-conventional": "^17.3.0",
+    "husky": "^8.0.2"
   }
 }
