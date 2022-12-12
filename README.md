@@ -35,7 +35,7 @@
 
 ### Tech Stack
 
-- electron js
+- node
 
 ## Authors and Contributors
 
