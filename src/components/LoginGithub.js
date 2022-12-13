@@ -17,6 +17,7 @@ Post URL:- https://github.com/login/oauth/access_token
 Request Body:- client_id, client_secret, code
 Response Body:- access_token, state
 
+Store access_token to keytar
 */
 
 import axios from "axios";
@@ -28,7 +29,7 @@ import crypto from "crypto";
 import dotenv from "dotenv";
 import opener from "opener";
 import express from "express";
-
+import Store from "./configManager.js";
 export class LoginGithub {
   constructor(options) {
     dotenv.config(); //import env from .env file
@@ -108,10 +109,14 @@ export class LoginGithub {
 
   async login() {
     if (!this.username && !this.email) {
+      //If argument is not given
       const answers = await this.doPrompts();
       this.username = answers.username;
       this.email = answers.email;
     }
+    //Save username and email to configFile
+    Store.set("username", this.username);
+    Store.set("email", this.email);
 
     this.spinner = new Spinner("%s Opening Browser...");
     this.spinner.setSpinnerString("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏");
@@ -122,7 +127,7 @@ export class LoginGithub {
         this.client_id
       }&redirect_uri=${"http://localhost:8080/auth"}&login=${
         this.username
-      }&scope="repo"&state=${this.id}`
+      }&scope="repo:status, repo, user"&state=${this.id}`
     );
     this.listen = this.app.listen(8080);
     this.timer = setTimeout(() => {
