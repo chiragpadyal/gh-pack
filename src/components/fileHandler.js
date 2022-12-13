@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as process from "process";
 import * as path from "path";
 
-export function FileHandler(string) {
+export function fileHandler(string) {
   return new Promise(function (myResolve, myReject) {
     let combine = path.join(process.cwd(), string); // join the argument path and pwd where command is run
     fs.readFile(combine, "utf8", (err, data) => {
