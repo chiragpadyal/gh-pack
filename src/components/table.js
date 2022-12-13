@@ -1,6 +1,6 @@
 import { table } from "table";
 import semver from "semver";
-export async function TableView(json) {
+export async function tableView(json) {
   const data = [["Name", "Version", "Latest Version", "Upto Date", "Health"]];
   // Map json data to table
   for (var key in json) {
@@ -10,7 +10,7 @@ export async function TableView(json) {
       key, // name
       json[key].currentVersion, //current version in package.json
       json[key].latestVersion, //lastest version of package
-      semver.lte(
+      semver.gte(
         //check if package is uptodate acc. to lastest version
         parseVersion(json[key].currentVersion),
         parseVersion(json[key].latestVersion)
