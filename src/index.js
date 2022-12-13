@@ -1,26 +1,26 @@
 import { Command } from "commander";
-import { Spinner } from "cli-spinner";
+import { LoginGithub } from "./components/LoginGithub.js";
+import { analyzeFile } from "./components/analyzeFile.js";
+import { bumpVersion } from "./components/bumpVersion.js";
 import gradient from "gradient-string";
 import figlet from "figlet";
-import { FileHandler } from "./components/fileHandler.js";
-import { CheckNpmServer } from "./components/callNpmServer.js";
-import { TableView } from "./components/table.js";
-import { LoginGithub } from "./components/LoginGithub.js";
+import { ghUrlSeparate } from "./components/ghUrlSep.js";
 
 let program = new Command();
 
-async function check(string) {
-  let spinner, txt, output;
-  spinner = new Spinner("%s Fetching Package details...");
-  spinner.setSpinnerString("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏");
-  spinner.start();
-  txt = await FileHandler(string);
-  output = await CheckNpmServer(txt);
-  spinner.stop(true);
-  TableView(output);
-}
+async function bump(githubUrl, options) {
+  let ghData = ghUrlSeparate(githubUrl);
+  let data = {
+    username: ghData.username,
+    repo: ghData.repo,
+    force: options.force ? true : false,
+    packageName: options.packageName,
+    branchName: options.defaultBranch,
+    version: options.version,
+  };
 
-async function bump(string, options) {}
+  bumpVersion(data);
+}
 
 console.log(
   gradient("red", "green", "blue")(figlet.textSync("N P M  G U I !"))
@@ -41,14 +41,27 @@ program
 program
   .command("check")
   .description("Analyze package.json dependencies!")
-  .argument("<string>", "package.json file location")
-  .action(check);
+  .argument(
+    "<file-path>",
+    "github repository (http) url or path to local package.json file"
+  )
+  .action(analyzeFile);
 
 program
   .command("bump")
   .description("Bump a package version on github repository!")
-  .option("-p, --package-name <string>")
-  .argument("<string>", "github repository http url")
+  .option("-p, --package-name <string>", "package name", "all")
+  .option("-df, --default-branch <string>", "default branch name", "main")
+  .option(
+    "--force",
+    "force bump version, even if logged-in username and target repo usernmae are different"
+  )
+  .option(
+    "-v, --version <string>",
+    "version of pakage default: latest",
+    "latest"
+  )
+  .argument("<github-url>", "github repository http url")
   .action(bump);
 
 program.parse();
