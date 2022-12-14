@@ -22,9 +22,13 @@ import { newBranchNameGenerator } from "./branchName.js";
 import { updatedPackageJSON } from "./updatedPackageJSON.js";
 import { fetchJsonFromGH } from "./fetchJsonFromGH.js";
 import { deleteBranch } from "./deleteBranch.js";
+import { createBranch } from "./createBranch.js";
 
 export function bumpVersion(options) {
   return new Promise(async function (myResolve, myReject) {
+    let username = Store.get("username");
+    let repo = options.repo;
+    let defaultBranch = options.branchName;
     let branchName = newBranchNameGenerator(
       options.packageName,
       options.version
@@ -32,14 +36,13 @@ export function bumpVersion(options) {
 
     try {
       if (!Store.get("username") && !Store.get("email"))
-        new Error('run "npm-gui login" first');
+        throw 'run "npm-gui login" first';
 
-      if (Store.get("username") != options.username)
-        new Error(
-          "logged-in username and target repository owner's \
+      if (Store.get("username") != options.username) {
+        throw "logged-in username and target repository owner's \
         username are different!, run with -f if have \
-        write permission to target repository"
-        );
+        write permission to target repository";
+      }
       //Get password from keylib
 
       let password = await keytar.getPassword(
@@ -53,21 +56,7 @@ export function bumpVersion(options) {
       });
 
       //Create  a reference [Create New branch]
-      const mainRef = await octokit.request(
-        "GET /repos/{owner}/{repo}/git/ref/{ref}",
-        {
-          owner: Store.get("username"),
-          repo: options.repo,
-          ref: `heads/${options.branchName}`,
-        }
-      );
-
-      await octokit.rest.git.createRef({
-        owner: Store.get("username"),
-        repo: options.repo,
-        ref: `refs/heads/${branchName}`,
-        sha: mainRef.data.object.sha,
-      });
+      createBranch(username, repo, defaultBranch, branchName, octokit);
 
       //Get file sha (unique id) and File Package.json content i.e dependencies
       const { sha, content } = await fetchJsonFromGH(
@@ -100,8 +89,7 @@ export function bumpVersion(options) {
           Store.get("username"),
           octokit
         );
-        myReject(new Error("no changes!"));
-        return;
+        throw "no changes found!";
       }
 
       // Replace Changed Dependencies with dependencies in package,json file
@@ -140,8 +128,13 @@ export function bumpVersion(options) {
       );
       myResolve(changedPackage);
     } catch (error) {
-      console.log(error);
-      myReject(new Error(error));
+      myReject({
+        message: error,
+        data: {
+          packageName: options.packageName,
+          version: options.version,
+        },
+      });
     }
   });
 }
