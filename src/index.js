@@ -1,48 +1,16 @@
 import { Command } from "commander";
 import { LoginGithub } from "./components/LoginGithub.js";
 import { analyzeFile } from "./components/analyzeFile.js";
-import { bumpVersion } from "./components/bumpVersion.js";
 import gradient from "gradient-string";
 import figlet from "figlet";
-import { ghUrlSeparate } from "./components/ghUrlSep.js";
+import { taskBumpVersion } from "./components/taskBumpVersion.js";
 
 let program = new Command();
-
-async function bump(options) {
-  let packageName,
-    version = "";
-  let changedPackage = [];
-  let ghData = ghUrlSeparate(options.githubUrl);
-  options.packageVersion.map((value) => {
-    let splitedName = value.split("@");
-    if (splitedName[1]) {
-      packageName = splitedName[0];
-      version = splitedName[1];
-    }
-    let data = {
-      username: ghData.username,
-      repo: ghData.repo,
-      force: options.force ? true : false,
-      packageName: packageName,
-      branchName: options.defaultBranch,
-      version: version,
-    };
-    bumpVersion(data)
-      .then((data) =>
-        console.log(`Done! Bumped ${packageName} to version ${version}`)
-      )
-      .catch((err) =>
-        console.log(`failed! To bump ${packageName} to version ${version}`)
-      );
-  });
-}
 
 console.log(
   gradient("red", "green", "blue")(figlet.textSync("N P M  G U I !"))
 );
-function collect(value, previous) {
-  return previous.concat([value]);
-}
+
 program
   .name("npm-gui")
   .description("CLI to view package.json and bump dependencies version.")
@@ -83,6 +51,6 @@ program
     "-gh, --github-url <github-url>",
     "github repository http url"
   )
-  .action(bump);
+  .action(taskBumpVersion);
 
 program.parse();
