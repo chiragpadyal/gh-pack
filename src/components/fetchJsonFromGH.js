@@ -1,7 +1,15 @@
+/*
+ghData= {
+  username,
+  repo
+}
+type = sha or anything
+*/
+
 import { Octokit } from "octokit";
 import keytar from "keytar";
 
-export async function fetchJsonFromGH(ghData, type) {
+export async function fetchJsonFromGH(ghData, type, defaultBranch = "master") {
   const { username, repo } = ghData;
 
   //Get password from keylib
@@ -17,15 +25,16 @@ export async function fetchJsonFromGH(ghData, type) {
 
   const {
     data: { sha, content },
-  } = await octokit.request("GET /repos/{owner}/{repo}/contents/{path}", {
+  } = await octokit.request("GET /repos/{owner}/{repo}/contents/{path}{?ref}", {
     owner: username,
     repo: repo,
     path: "package.json",
+    ref: defaultBranch,
   });
 
   let txt = Buffer.from(content, "base64").toString("ascii");
-  txt = JSON.parse(txt).dependencies;
+  txt = JSON.parse(txt);
 
-  if (type === "sha") return sha;
-  else return txt;
+  if (type === "sha") return { sha, content: txt };
+  else return txt.dependencies;
 }
