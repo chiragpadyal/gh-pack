@@ -1,6 +1,7 @@
 import crypto from "crypto";
 
-export function branchName() {
-  let random = crypto.randomBytes(5).toString("hex");
-  return `v-${random}`;
+export function newBranchNameGenerator(packageName, version) {
+  let txt = crypto.randomBytes(4).toString("hex");
+  let random = `dependencies/${packageName}@${version}/${txt}`;
+  return random;
 }
