@@ -1,9 +1,3 @@
-import { Octokit } from "octokit";
-import keytar from "keytar";
-import { branchName } from "./branchName.js";
-import { updatedPackageJSON } from "./updatedPackageJSON.js";
-import Store from "./configManager.js";
-
 /*
 --------- data ---------
   options ={
@@ -12,93 +6,142 @@ import Store from "./configManager.js";
     force,
     packageName,
     branchName,
-    version
+    versions
   }
 
   store:-
     username, 
     email
-*/
-export async function bumpVersion(options) {
-  try {
-    if (!Store.get("username") && !Store.get("email"))
-      new Error('run "npm-gui login" first');
 
-    if (Store.get("username") != options.username)
-      new Error(
-        "logged-in username and target repository owner \
+  }
+*/
+import { Octokit } from "@octokit/rest";
+import keytar from "keytar";
+import Store from "./configManager.js";
+import { newBranchNameGenerator } from "./branchName.js";
+import { updatedPackageJSON } from "./updatedPackageJSON.js";
+import { fetchJsonFromGH } from "./fetchJsonFromGH.js";
+import { deleteBranch } from "./deleteBranch.js";
+
+export function bumpVersion(options) {
+  return new Promise(async function (myResolve, myReject) {
+    let branchName = newBranchNameGenerator(
+      options.packageName,
+      options.version
+    );
+
+    try {
+      if (!Store.get("username") && !Store.get("email"))
+        new Error('run "npm-gui login" first');
+
+      if (Store.get("username") != options.username)
+        new Error(
+          "logged-in username and target repository owner's \
         username are different!, run with -f if have \
         write permission to target repository"
+        );
+      //Get password from keylib
+
+      let password = await keytar.getPassword(
+        "Github-Token-NPM-GUI",
+        Store.get("username")
       );
-    //Get password from keylib
-    let password = await keytar.getPassword(
-      "Github-Token-NPM-GUI",
-      Store.get("username")
-    );
 
-    //Login
-    const octokit = new Octokit({
-      auth: password,
-    });
+      //Login
+      const octokit = new Octokit({
+        auth: password,
+      });
 
-    //Create  a reference [Create New branch]
-    const mainRef = await octokit.request(
-      "GET /repos/{owner}/{repo}/git/ref/{ref}",
-      {
+      //Create  a reference [Create New branch]
+      const mainRef = await octokit.request(
+        "GET /repos/{owner}/{repo}/git/ref/{ref}",
+        {
+          owner: Store.get("username"),
+          repo: options.repo,
+          ref: `heads/${options.branchName}`,
+        }
+      );
+
+      await octokit.rest.git.createRef({
         owner: Store.get("username"),
         repo: options.repo,
-        ref: `heads/${options.branchName}`,
+        ref: `refs/heads/${branchName}`,
+        sha: mainRef.data.object.sha,
+      });
+
+      //Get file sha (unique id) and File Package.json content i.e dependencies
+      const { sha, content } = await fetchJsonFromGH(
+        {
+          username: Store.get("username"),
+          repo: options.repo,
+        },
+        "sha",
+        options.branchName
+      );
+
+      //Edit File using SHA-1 Unique id
+
+      //Edit package.json
+      const { changedPackage, contentJSON } = await updatedPackageJSON(
+        content.dependencies,
+        {
+          packageName: options.packageName,
+          version: options.version,
+        }
+      );
+
+      //IF there are no changes in package.json
+      if (Object.keys(changedPackage).length === 0) {
+        // check if there is no changes in package.json
+        //Delete Reference (new branch)
+        await deleteBranch(
+          options.repo,
+          branchName,
+          Store.get("username"),
+          octokit
+        );
+        myReject(new Error("no changes!"));
+        return;
       }
-    );
 
-    await octokit.rest.git.createRef({
-      owner: Store.get("username"),
-      repo: options.repo,
-      ref: `refs/heads/v3-random`,
-      sha: mainRef.data.object.sha,
-    });
+      // Replace Changed Dependencies with dependencies in package,json file
+      content.dependencies = contentJSON;
 
-    //Get file sha (unique id)
-    const {
-      data: { sha },
-    } = await octokit.request("GET /repos/{owner}/{repo}/contents/{path}", {
-      owner: Store.get("username"),
-      repo: options.repo,
-      path: "package.json",
-    });
+      const contentEncoded = Buffer.from(
+        JSON.stringify(content, null, 4)
+      ).toString("base64"); // Encode content
 
-    //Edit File using SHA-1 Unique id
-    const contentEncoded = Buffer.from(updatedPackageJSON).toString("base64"); // Encode content
-
-    await octokit.repos.createOrUpdateFileContents({
-      owner: Store.get("username"),
-      repo: options.repo,
-      path: "package.json",
-      message: `Bump ${options.packageName} to ${options.version}`,
-      sha: sha,
-      branch: branchName,
-      content: contentEncoded,
-      committer: {
-        name: Store.get("username"),
-        email: Store.get("email"),
-      },
-    });
-
-    //Create Pull Request
-    const prDetails = await octokit.request(
-      "POST /repos/{owner}/{repo}/pulls",
-      {
+      const changeDetails = await octokit.repos.createOrUpdateFileContents({
         owner: Store.get("username"),
         repo: options.repo,
-        title: `Bump ${options.packageName} to ${options.version}`,
-        body: `Bump ${options.packageName} to ${options.version}`,
-        head: branchName,
-        base: options.branchName,
-      }
-    );
-  } catch (error) {
-    console.log(error);
-    new Error(error);
-  }
+        path: "package.json",
+        // /repos/{owner}/{repo}
+        message: `Bump ${options.packageName} to ${options.version}`,
+        sha: sha,
+        branch: branchName,
+        content: contentEncoded,
+        committer: {
+          name: Store.get("username"),
+          email: Store.get("email"),
+        },
+      });
+
+      //Create Pull Request
+      const prDetails = await octokit.request(
+        "POST /repos/{owner}/{repo}/pulls",
+        {
+          owner: Store.get("username"),
+          repo: options.repo,
+          title: `Bump ${options.packageName} to ${options.version}`,
+          body: `Bump ${options.packageName} to ${options.version}`,
+          head: branchName,
+          base: options.branchName,
+        }
+      );
+      myResolve(changedPackage);
+    } catch (error) {
+      console.log(error);
+      myReject(new Error(error));
+    }
+  });
 }
-// BumpVersion();
