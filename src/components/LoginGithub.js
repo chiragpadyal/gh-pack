@@ -74,7 +74,7 @@ export class LoginGithub {
           .then(function (response) {
             // console.log(response.data.access_token);
             keytar.setPassword(
-              "Github-Token-NPM-GUI",
+              "Github-Token-GH-PACK",
               _this.username,
               response.data.access_token
             );

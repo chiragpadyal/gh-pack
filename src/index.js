@@ -12,7 +12,7 @@ console.log(
 );
 
 program
-  .name("npm-gui")
+  .name("gh-pack")
   .description("CLI to view package.json and bump dependencies version.")
   .version("1.0.0");
 

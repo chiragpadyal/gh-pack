@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "name": "npm-gui",
+  "name": "gh-pack",
   "version": "1.0.0",
   "description": "A npm command-line tool.",
   "main": "src/index.js",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/chiragpadyal/npm-gui.git"
+    "url": "git+https://github.com/chiragpadyal/gh-pack.git"
   },
   "keywords": [
     "packages",
@@ -25,9 +25,9 @@
   "author": "Chirag Padyal <chirag.padyal@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/chiragpadyal/npm-gui/issues"
+    "url": "https://github.com/chiragpadyal/gh-pack/issues"
   },
-  "homepage": "https://github.com/chiragpadyal/npm-gui#readme",
+  "homepage": "https://github.com/chiragpadyal/gh-pack#readme",
   "dependencies": {
     "@octokit/rest": "^19.0.5",
     "axios": "^1.2.1",

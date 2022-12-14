@@ -14,7 +14,7 @@ export async function fetchJsonFromGH(ghData, type, defaultBranch = "master") {
 
   //Get password from keylib
   let password = await keytar.getPassword(
-    "Github-Token-NPM-GUI",
+    "Github-Token-GH-PACK",
     "chiragpadyal"
   );
 

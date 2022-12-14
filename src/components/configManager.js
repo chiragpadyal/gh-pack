@@ -3,7 +3,7 @@ import { cwd } from "process";
 import { join } from "path";
 import * as os from "os";
 const store = new Store({
-  home: join(cwd(), ".config/npm-gui.config"),
+  home: join(cwd(), ".config/gh-pack.config"),
   name: "settings",
 });
 export default store;

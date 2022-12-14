@@ -5,4 +5,4 @@ export async function deleteBranch(repo, reference, username, octokit) {
     ref: reference,
   });
 }
-// https://api.github.com/repos/chiragpadyal/test-npm-gui/git/refs/heads/test
+// https://api.github.com/repos/chiragpadyal/test-gh-pack/git/refs/heads/test

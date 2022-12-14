@@ -36,7 +36,7 @@ export function bumpVersion(options) {
 
     try {
       if (!Store.get("username") && !Store.get("email"))
-        throw 'run "npm-gui login" first';
+        throw 'run "gh-pack login" first';
 
       if (Store.get("username") != options.username) {
         throw "logged-in username and target repository owner's \
@@ -46,7 +46,7 @@ export function bumpVersion(options) {
       //Get password from keylib
 
       let password = await keytar.getPassword(
-        "Github-Token-NPM-GUI",
+        "Github-Token-GH-PACK",
         Store.get("username")
       );
 
