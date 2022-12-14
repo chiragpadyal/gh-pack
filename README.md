@@ -1,41 +1,91 @@
-# [npm-gui](https://github.com/FreakStar03/npm-gui)
+# [gh-pack](https://github.com/chiragpadyal/gh-pack)
 
-![GitHub all releases](https://img.shields.io/github/downloads/FreakStar03/npm-gui/total) ![GitHub](https://img.shields.io/github/license/FreakStar03/npm-gui)
-
-#
-
-![not released]()
-
-#
+![npm release](https://img.shields.io/npm/v/gh-pack) ![GitHub](https://img.shields.io/github/license/chiragpadyal/gh-pack)
 
 ## About
 
-`npm-gui` is a Graphic tool for creating new javascript frameworks project and managing project dependencies. It is a convenient tool for managing javascript project dependencies listed in `package.json`. Under the hood, it will transparently use `npm` or `yarn` commands to install, remove or update dependencies
-(_to use **yarn** it requires the **yarn.lock** file to be present in project folder._)
+`gh-pack` is a CLI tool for listing packages in `package.json` file on local or github remote repository. It can bump version of packages in `package.json` file to any desired version on an remote github repository.Under the hood, it uses github rest api to create branch, edit content and create pull request.
 
-### **npm-gui** key features
+### **gh-pack** key features
 
-- Create Listed framework project
-- global dependencies management
-- project dependencies management
-- npm, yarn support
-
-### **npm-gui** supported framework
-
-- Reactjs
-- Gatsby
-- Nextjs
-- Vuejs
+- List packages on remote github repository or local `package.json` file.
+- look for new package version.
+- bump package version on remote github repository by creating a pull request like dependabot.
+- smooth github login and token creation using github rest api and oauth.
 
 ## Getting Started
 
 ### How to use
 
+> For help there is help command to know more about any command usage!
+
+Install
+
+```
+npm install gh-pack -g
+or
+npx gh-pack <commands>
+```
+
+Usage
+
+```
+Usage: gh-pack [options] [command]
+
+CLI to view package.json and bump dependencies version.
+
+Options:
+  -V, --version      output the version number
+  -h, --help         display help for command
+
+Commands:
+  login [options]    Login to github account
+  check <file-path>  Analyze package.json dependencies!
+  bump [options]     Bump a package version on github repository!
+  help [command]     display help for command
+```
+
+bump package version on github:-
+
+```
+gh-pack login
+```
+
+```
+Usage: gh-pack bump [options]
+
+Bump a package version on github repository!
+
+Options:
+  -df, --default-branch <string>             main branch name (default: "master")
+  --force                                    force bump version, even if logged-in username and target repo
+                                             usernmae are different
+  -pv , --package-version <package@version>  list of package@version i.e -pv react@1.0.0 -pv redux@latest -pv
+                                             react-dom@1.0.0 ....      If the -pv value is all (i.e -pv all) than
+                                             all packages will be bump! (default: [])
+  -gh, --github-url <github-url>             github repository http url
+  -h, --help                                 display help for command
+```
+
 ## Developement
+
+.env file:-
+
+```
+CLIENT_ID:
+CLIENT_SECRET:
+```
+
+run
+
+```
+npm install
+node src/index.js <commands>
+```
 
 ### Tech Stack
 
-- node
+- node js
 
 ## Authors and Contributors
 
